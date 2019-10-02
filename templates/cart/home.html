@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Shopping cart</h1>
+    {% if cart.products.exists %}
+        <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Product name</th>
+                <th scope="col">Price</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in cart.products.all %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <!-- <td><a href="{% url 'products:detail_slug' slug=product.slug %}">{{ product.title }}</a></td> -->
+                <td><a href="{{ product.get_absolute_url }}">{{ product.title }}</a></td>
+                <td>{{ product.price }}</td>
+                <td>
+                    <form class="form" method="POST" action="{% url 'cart:update' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="2" class="text-right">Subtotal</td>
+                <td>{{ cart.subtotal }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-right">Total</td>
+                <td>{{ cart.total }}</td>
+                <td></td>
+            </tr>
+        </tbody>
+        </table>
+    {% else %}
+    <div class="row">
+        <div class="col">
+            <p class="lead">Cart is empty!</p>
+        </div>
+    </div>
+    {% endif %}
+{% endblock content %}

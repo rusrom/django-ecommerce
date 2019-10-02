@@ -1,0 +1,36 @@
+from django.db import models
+from django.db.models.signals import pre_save
+
+from cart.models import Cart
+from ecommerce.utils import unique_order_id_generator
+
+
+ORDER_STATUS_CHOICES = (
+    ('new', 'New'),
+    ('confirmed', 'Confirmed'),
+    ('cancelled', 'Cancelled'),
+    ('shipped', 'Shipped'),
+    ('closed', 'Closed'),
+    ('refunded', 'Refunded'),
+)
+
+
+class Order(models.Model):
+    order_id = models.CharField(max_length=120, blank=True)
+    cart = models.ForeignKey(Cart)
+    status = models.CharField(max_length=20, default='new', choices=ORDER_STATUS_CHOICES)
+    shipping_total = models.DecimalField(max_digits=10, decimal_places=2, default=50.00)
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    def __str__(self):
+        return self.order_id
+
+
+# Generate the order ID
+def pre_save_create_order_id(sender, instance, *args, **kwargs):
+    if not instance.order_id:
+        instance.order_id = unique_order_id_generator(instance)
+
+pre_save.connect(pre_save_create_order_id, sender=Order)
+
+# Generate the order TOTAL

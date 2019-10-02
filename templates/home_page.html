@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="text-center">
+    <h1>{{ page_title }}</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <img src="{% static 'img/smart-fortwo.jpg' %}" class="img-fluid">
+                {{ content }}
+            </div>
+        </div>
+        {# {% if premium_content %} #}
+        {% if request.user.is_authenticated %}
+        
+        <div class="row">
+            <div class="col">
+              <h1>Premium</h1>
+              {{ premium_content }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if request.GET.q %}
+        {% if object_list %}
+            <div class="row">
+                <div class="col mb-3">
+                    <h3>Search results for "{{ request.GET.q }}"</h3>
+                </div>
+            </div>
+            <div class="row">
+            {% for obj in object_list %}
+                <div class="col">
+                    {% include 'products/snippets/card.html' with instance=obj %}
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col">
+                    <h3>No result found fo query "{{ request.GET.q }}"</h3>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="row">
+            <div class="col col-sm-8 mx-auto">
+                {% include 'search/snippets/search-form.html' %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock content %}
