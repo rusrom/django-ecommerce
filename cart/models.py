@@ -22,12 +22,12 @@ class CartManager(models.Manager):
                 if request.user.is_authenticated() and cart_instance.user is None:
                     cart_instance.user = request.user
                     cart_instance.save()
-                return cart_instance
+                return cart_instance, False
 
         # Create cart
         cart_instance = self.new_cart(user)
         request.session['cart_id'] = cart_instance.id
-        return cart_instance
+        return cart_instance, True
 
     def new_cart(self, user=None):
         print(user, '|', type(user))

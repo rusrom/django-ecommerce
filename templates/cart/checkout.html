@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<h1>Checkout page</h1>
+<p>Cart total: {{ order.cart.total }}</p>
+<p>Shipping total: {{ order.shipping_total }}</p>
+<p>Order total: {{ order.total }}</p>
+{% endblock content %}

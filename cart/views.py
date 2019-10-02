@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 
 from products.models import Product
 from .models import Cart
+from orders.models import Order
 
 
 # def cart_create(request, user=None):
@@ -12,7 +13,7 @@ from .models import Cart
 
 
 def cart_home(request):
-    cart_instance = Cart.objects.new_or_get(request)
+    cart_instance, new_cart = Cart.objects.new_or_get(request)
     context = {
         'cart': cart_instance,
     }
@@ -52,7 +53,7 @@ def cart_update(request):
         print('Show message to user, product is gone!')
         return redirect('cart:home')
 
-    cart_obj = Cart.objects.new_or_get(request)
+    cart_obj, new_cart = Cart.objects.new_or_get(request)
 
     if product_obj in cart_obj.products.all():
         cart_obj.products.remove(product_obj)
@@ -61,3 +62,12 @@ def cart_update(request):
     request.session['cart_items'] = cart_obj.products.count()
 
     return redirect('cart:home')
+
+
+def checkout_home(request):
+    cart, new_cart = Cart.objects.new_or_get(request)
+    if new_cart or not cart.products.count():
+        return redirect('cart:home')
+    else:
+        order, new_order = Order.objects.get_or_create(cart=cart)
+        return render(request, 'cart/checkout.html', {'order': order})
