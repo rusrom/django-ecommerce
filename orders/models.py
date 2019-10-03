@@ -23,7 +23,9 @@ class Order(models.Model):
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def update_total(self):
-        self.total = self.cart.total + self.shipping_total
+        print('>>> self.cart.total >>>', type(self.cart.total))
+        print('>>> self.shipping_total >>>', type(self.shipping_total))
+        self.total = float(self.cart.total) + self.shipping_total
         self.save()
 
     def __str__(self):
