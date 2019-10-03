@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from products.models import Product
 from .models import Cart
 from orders.models import Order
+from billing.models import BillingProfile
+from accounts.forms import LoginForm
 
 
 # def cart_create(request, user=None):
@@ -68,6 +70,22 @@ def checkout_home(request):
     cart, new_cart = Cart.objects.new_or_get(request)
     if new_cart or not cart.products.count():
         return redirect('cart:home')
-    else:
-        order, new_order = Order.objects.get_or_create(cart=cart)
-        return render(request, 'cart/checkout.html', {'order': order})
+
+    user = request.user
+    billing_profile = None
+    if user.is_authenticated():
+        billing_profile, billing_profile_created = BillingProfile.objects.get_or_create(
+            user=user,
+            email=user.email
+        )
+
+
+    order, new_order = Order.objects.get_or_create(cart=cart)
+    login_form = LoginForm()
+
+    context = {
+        'billing_profile': billing_profile,
+        'order': order,
+        'login_form': login_form,
+    }
+    return render(request, 'cart/checkout.html', context)

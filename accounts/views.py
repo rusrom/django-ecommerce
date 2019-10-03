@@ -13,7 +13,6 @@ def login_page(request):
         'form': form,
     }
 
-    redirect_url = request.GET.get('next') or request.POST.get('next')
 
     # print('User loged in:', request.user.is_authenticated())
     if form.is_valid():
@@ -27,6 +26,7 @@ def login_page(request):
         if user:
             login(request, user)
             # Redirect to success page
+            redirect_url = request.GET.get('next') or request.POST.get('next')
             if is_safe_url(redirect_url, request.get_host()):
                 return redirect(redirect_url)
             return redirect('/')

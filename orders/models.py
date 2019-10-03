@@ -3,6 +3,7 @@ from django.db.models.signals import pre_save, post_save
 
 from cart.models import Cart
 from ecommerce.utils import unique_order_id_generator
+from decimal import Decimal
 
 
 ORDER_STATUS_CHOICES = (
@@ -25,7 +26,7 @@ class Order(models.Model):
     def update_total(self):
         print('>>> self.cart.total >>>', type(self.cart.total))
         print('>>> self.shipping_total >>>', type(self.shipping_total))
-        self.total = float(self.cart.total) + self.shipping_total
+        self.total = Decimal(self.cart.total) + Decimal(self.shipping_total)
         self.save()
 
     def __str__(self):
