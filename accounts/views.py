@@ -3,7 +3,8 @@ from django.utils.http import is_safe_url
 
 from django.contrib.auth import authenticate, login, get_user_model
 
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, RegisterForm, GuestForm
+from .models import GuestEmail
 
 
 def login_page(request):
@@ -12,7 +13,6 @@ def login_page(request):
         'page_title': 'Login Page',
         'form': form,
     }
-
 
     # print('User loged in:', request.user.is_authenticated())
     if form.is_valid():
@@ -36,6 +36,24 @@ def login_page(request):
             # Return an invalid login error message
             print('Fail')
     return render(request, 'accounts/login.html', context)
+
+
+def guest_register(request):
+    form = GuestForm(request.POST or None)
+
+    if form.is_valid():
+        email = form.cleaned_data.get('email')
+        guest_email = GuestEmail.objects.create(email=email)
+        request.session['guest_email_id'] = guest_email.id
+
+        redirect_url = request.GET.get('next') or request.POST.get('next')
+
+        if is_safe_url(redirect_url, request.get_host()):
+            return redirect(redirect_url)
+
+    # Return an invalid guest login error message
+    print('Fail checkout as Guest redirect to Register Form')
+    return redirect('register')
 
 
 def register_page(request):
