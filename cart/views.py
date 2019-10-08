@@ -69,30 +69,15 @@ def cart_update(request):
 
 def checkout_home(request):
     cart, new_cart = Cart.objects.new_or_get(request)
-    
+
     # Check is cart new or cart empty
     if new_cart or not cart.products.count():
         return redirect('cart:home')
 
-    user = request.user
     login_form = LoginForm()
     guest_form = GuestForm()
-    guest_email_id = request.session.get('guest_email_id')
-    billing_profile = None
 
-    # Authenticated user
-    if user.is_authenticated():
-        billing_profile, billing_profile_created = BillingProfile.objects.get_or_create(
-            user=user,
-            email=user.email
-        )
-
-    # Guest user
-    if guest_email_id:
-        guest = GuestEmail.objects.get(id=guest_email_id)
-        billing_profile, billing_guest_profile_created = BillingProfile.objects.get_or_create(
-            email=guest.email
-        )
+    billing_profile, billing_created = BillingProfile.objects.new_or_get(request)
 
     order = None
     if billing_profile:
