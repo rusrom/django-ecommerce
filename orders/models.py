@@ -18,6 +18,30 @@ ORDER_STATUS_CHOICES = (
 )
 
 
+class OrderManager(models.Manager):
+    def new_or_get(self, billing_profile, cart):
+        qs = self.get_queryset().filter(
+            cart=cart,
+            billing_profile=billing_profile,
+            active=True,
+        )
+
+        if qs.exists():
+            order = qs.first()
+            created = False
+        else:
+            # Bellow functionality was removed to pre_save_create_order_id()
+            # previous_order = Order.objects.filter(cart=cart, active=True)
+            # if previous_order.exists():
+            #     previous_order.update(active=False)
+            order = self.model.objects.create(
+                cart=cart,
+                billing_profile=billing_profile,
+            )
+            created = True
+        return order, created
+
+
 class Order(models.Model):
     billing_profile = models.ForeignKey(BillingProfile, null=True, blank=True)
     order_id = models.CharField(max_length=120, blank=True)
@@ -26,6 +50,8 @@ class Order(models.Model):
     shipping_total = models.DecimalField(max_digits=10, decimal_places=2, default=50.00)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     active = models.BooleanField(default=True)
+
+    objects = OrderManager()
 
     def update_total(self):
         print('>>> self.cart.total >>>', type(self.cart.total))
@@ -37,10 +63,13 @@ class Order(models.Model):
         return self.order_id
 
 
-# Generate the order ID
 def pre_save_create_order_id(sender, instance, *args, **kwargs):
     if not instance.order_id:
         instance.order_id = unique_order_id_generator(instance)
+
+    prev_order = Order.objects.filter(cart=instance.cart, active=True).exclude(billing_profile=instance.billing_profile)
+    if prev_order.exists():
+        prev_order.update(active=False)
 
 pre_save.connect(pre_save_create_order_id, sender=Order)
 

@@ -70,7 +70,6 @@ def cart_update(request):
 def checkout_home(request):
     cart, new_cart = Cart.objects.new_or_get(request)
     
-
     # Check is cart new or cart empty
     if new_cart or not cart.products.count():
         return redirect('cart:home')
@@ -95,33 +94,9 @@ def checkout_home(request):
             email=guest.email
         )
 
-    # if billing_profile:
-    #     order_qs = Order.objects.filter(cart=cart, active=True)
-    #     if order_qs.exists():
-    #         order_qs.update(active=False)
-    #     else:
-    #         # order, new_order = Order.objects.get_or_create(cart=cart)
-    #         order = Order.objects.create(
-    #             billing_profile=billing_profile,
-    #             cart=cart,
-    #         )
     order = None
     if billing_profile:
-        order_qs = Order.objects.filter(
-            cart=cart,
-            billing_profile=billing_profile,
-            active=True,
-        )
-        if order_qs.exists():
-            order = order_qs.first()
-        else:
-            previous_order = Order.objects.filter(cart=cart, active=True)
-            if previous_order.exists():
-                previous_order.update(active=False)
-            order = Order.objects.create(
-                cart=cart,
-                billing_profile=billing_profile,
-            )
+        order, order_created = Order.objects.new_or_get(billing_profile, cart)
 
     context = {
         'billing_profile': billing_profile,
