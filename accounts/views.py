@@ -25,6 +25,14 @@ def login_page(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
+
+            # Clear guest_email_id if user logedin
+            request.session.pop('guest_email_id', False)
+
+            # if request.session.get('guest_email_id'):
+            # if 'guest_email_id' in request.session:
+            #     del request.session['guest_email_id']
+
             # Redirect to success page
             redirect_url = request.GET.get('next') or request.POST.get('next')
             if is_safe_url(redirect_url, request.get_host()):
