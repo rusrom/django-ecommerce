@@ -1,0 +1,13 @@
+<form method="POST" action="{{ action_url }}">
+    {% csrf_token %}
+        {% if next_url %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+        {% endif %}
+
+        {% if address_type %}
+            <input type="hidden" name="address_type" value="{{ address_type }}">
+        {% endif %}
+
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>

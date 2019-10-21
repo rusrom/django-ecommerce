@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^products/', include('products.urls', namespace='products')),
     url(r'^search/', include('search.urls', namespace='search')),
     url(r'^cart/', include('cart.urls', namespace='cart')),
+    url(r'^address/', include('addresses.urls', namespace='address')),
     url(r'^bootstrap/', TemplateView.as_view(template_name='bootstrap/example.html')),
 ]
 

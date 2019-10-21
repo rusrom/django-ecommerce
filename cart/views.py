@@ -6,6 +6,8 @@ from orders.models import Order
 from billing.models import BillingProfile
 from accounts.forms import LoginForm, GuestForm
 from accounts.models import GuestEmail
+from addresses.models import Address
+from addresses.forms import AddressForm
 
 
 # def cart_create(request, user=None):
@@ -76,6 +78,8 @@ def checkout_home(request):
 
     login_form = LoginForm()
     guest_form = GuestForm()
+    address_form = AddressForm()
+    billing_form = AddressForm()
 
     billing_profile, billing_created = BillingProfile.objects.new_or_get(request)
 
@@ -83,10 +87,26 @@ def checkout_home(request):
     if billing_profile:
         order, order_created = Order.objects.new_or_get(billing_profile, cart)
 
+        shipping_address_id = request.session.get('shipping_address_id')
+        billing_address_id = request.session.get('billing_address_id')
+
+        if shipping_address_id:
+            order.shipping_address = Address.objects.get(pk=shipping_address_id)
+            request.session.pop('shipping_address_id', None)
+
+        if billing_address_id:
+            order.billing_address = Address.objects.get(pk=billing_address_id)
+            request.session.pop('billing_address_id', None)
+
+        if shipping_address_id or billing_address_id:
+            order.save()
+
     context = {
         'billing_profile': billing_profile,
         'order': order,
         'login_form': login_form,
         'guest_form': guest_form,
+        'address_form': address_form,
+        'billing_form': billing_form,
     }
     return render(request, 'cart/checkout.html', context)

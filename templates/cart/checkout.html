@@ -5,10 +5,29 @@
     {{ order.order_id }} -- {{ order.cart }}
 
     {% if billing_profile %}
-        <h1>Checkout page for {{ billing_profile.user.email }}</h1>
-        <p>Cart total: {{ order.cart.total }}</p>
-        <p>Shipping total: {{ order.shipping_total }}</p>
-        <p>Order total: {{ order.total }}</p>
+        {% if order.shipping_address and order.billing_address %}
+            <h1>Checkout page for {{ billing_profile.user.email }}</h1>
+            <p>Cart total: {{ order.cart.total }}</p>
+            <p>Shipping total: {{ order.shipping_total }}</p>
+            <p>Order total: {{ order.total }}</p>
+            <button type="submit">Checkout</button>
+        {% elif not order.shipping_address %}
+        <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <p class="lead">Shipping Address</p>
+                    {% url 'address:create' as address_create_url %}
+                    {% include 'addresses/address_form.html' with form=address_form address_type='shipping' action_url=address_create_url %}
+                </div>
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <p class="lead">Billing Address</p>
+                    {% url 'address:create' as address_create_url %}
+                    {% include 'addresses/address_form.html' with form=billing_form address_type='billing' action_url=address_create_url %}
+                </div>
+            </div>
+        {% endif %}
     {% else %}
         <div class="row">
             <div class="col-md-6">

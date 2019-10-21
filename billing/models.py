@@ -14,7 +14,7 @@ class BillingProfileManager(models.Manager):
         user = request.user
         guest_email_id = request.session.get('guest_email_id')
 
-        # Init billing_profile - Anonimous User
+        # Init billing_profile - Anonymous User
         billing_profile = None
         created = False
 
