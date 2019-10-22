@@ -1,0 +1,21 @@
+<form action="{{ action_url }}" method="post">
+    {% csrf_token %}
+
+    {% if address_type %}
+        <input type="hidden" name="address_type" value="{{ address_type }}">
+    {% endif %}
+
+    {% if next_url %}
+        <input type="hidden" name="next_url" value="{{ next_url }}">
+    {% endif %}
+
+    {% for address in address_qs %}
+        <div>
+            <input type="radio" id="address-{{ address.id }}" name="address_id" value="{{ address.id }}">
+            <label for="address-{{ address.id }}">{{ address.address_line_1 }}</label>
+        </div>
+    {% empty %}
+        No addresses found!
+    {% endfor %}
+    <button type="submit" class="btn btn-success">Select Address</button>
+</form>

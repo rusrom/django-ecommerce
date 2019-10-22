@@ -21,5 +21,11 @@ class Address(models.Model):
     gate = models.CharField(max_length=10, null=True, blank=True)
     floor = models.CharField(max_length=10, null=True, blank=True)
 
+    def get_address(self):
+        return '{city}, {line1}'.format(
+            city=self.city,
+            line1=self.address_line_1,
+        )
+
     def __str__(self):
         return str(self.billing_profile)

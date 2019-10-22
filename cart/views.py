@@ -54,8 +54,11 @@ def checkout_home(request):
     billing_profile, billing_created = BillingProfile.objects.new_or_get(request)
 
     order = None
+    address_qs = None
+    # if billing_profile and request.user.is_authenticated():
     if billing_profile:
         order, order_created = Order.objects.new_or_get(billing_profile, cart)
+        address_qs = Address.objects.filter(billing_profile=billing_profile)
 
         shipping_address_id = request.session.get('shipping_address_id')
         billing_address_id = request.session.get('billing_address_id')
@@ -63,19 +66,18 @@ def checkout_home(request):
         if shipping_address_id:
             order.shipping_address = Address.objects.get(pk=shipping_address_id)
             request.session.pop('shipping_address_id', None)
+            order.save()
 
         if billing_address_id:
             order.billing_address = Address.objects.get(pk=billing_address_id)
             request.session.pop('billing_address_id', None)
-
-        if shipping_address_id or billing_address_id:
             order.save()
 
     # Check order complete or waiting
     if request.method == 'POST' and order.mark_as_new():
         request.session.pop('cart_items', None)
         request.session.pop('cart_id', None)
-        return redirect('/cart/success/')
+        return redirect('cart:checkout_success')
 
     context = {
         'billing_profile': billing_profile,
@@ -84,5 +86,10 @@ def checkout_home(request):
         'guest_form': guest_form,
         'address_form': address_form,
         'billing_form': billing_form,
+        'address_qs': address_qs,
     }
     return render(request, 'cart/checkout.html', context)
+
+
+def checkout_success(request):
+    return render(request, 'cart/checkout_success.html')
