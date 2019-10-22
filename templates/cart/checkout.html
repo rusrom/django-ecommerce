@@ -10,7 +10,10 @@
             <p>Cart total: {{ order.cart.total }}</p>
             <p>Shipping total: {{ order.shipping_total }}</p>
             <p>Order total: {{ order.total }}</p>
-            <button type="submit">Checkout</button>
+            <form action="" method="post">
+                {% csrf_token %}
+                <button type="submit">Checkout</button>
+            </form>
         {% elif not order.shipping_address %}
         <div class="row">
                 <div class="col-md-6 mx-auto">

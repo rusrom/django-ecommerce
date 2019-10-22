@@ -10,41 +10,11 @@ from addresses.models import Address
 from addresses.forms import AddressForm
 
 
-# def cart_create(request, user=None):
-#     print('New cart instance created')
-#     cart_instance = Cart.objects.create(user=user)
-#     request.session['cart_id'] = cart_instance.id
-#     return cart_instance
-
-
 def cart_home(request):
     cart_instance, new_cart = Cart.objects.new_or_get(request)
     context = {
         'cart': cart_instance,
     }
-
-    # products = cart_instance.products.all()
-    # total = sum([product.price for product in products])
-
-
-    # user = request.user if request.user.is_authenticated() else None
-    # cart_id = request.session.get('cart_id')
-
-    # if cart_id:
-    #     # CartID exists
-    #     qs = Cart.objects.filter(id=cart_id)
-    #     if qs.exists():
-    #         cart_instance = qs.first()
-    #         # Update user but keep CartID after login
-    #         if request.user.is_authenticated() and cart_instance.user is None:
-    #             cart_instance.user = request.user
-    #             cart_instance.save()
-    #     print('CartID:', cart_instance.id)
-    # else:
-    #     # No cart exists
-    #     # cart_instance = cart_create(request)
-    #     cart_instance = Cart.objects.new_cart(user)
-    #     request.session['cart_id'] = cart_instance.id
 
     return render(request, 'cart/home.html', context)
 
@@ -100,6 +70,12 @@ def checkout_home(request):
 
         if shipping_address_id or billing_address_id:
             order.save()
+
+    # Check order complete or waiting
+    if request.method == 'POST' and order.mark_as_new():
+        request.session.pop('cart_items', None)
+        request.session.pop('cart_id', None)
+        return redirect('/cart/success/')
 
     context = {
         'billing_profile': billing_profile,

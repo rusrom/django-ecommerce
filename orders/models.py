@@ -10,9 +10,11 @@ from decimal import Decimal
 
 
 ORDER_STATUS_CHOICES = (
+    ('waiting', 'Waiting'),
     ('new', 'New'),
     ('confirmed', 'Confirmed'),
     ('cancelled', 'Cancelled'),
+    ('paid', 'Paid'),
     ('shipped', 'Shipped'),
     ('closed', 'Closed'),
     ('refunded', 'Refunded'),
@@ -24,6 +26,7 @@ class OrderManager(models.Manager):
         qs = self.get_queryset().filter(
             cart=cart,
             billing_profile=billing_profile,
+            status='waiting',
             active=True,
         )
 
@@ -55,7 +58,7 @@ class Order(models.Model):
         blank=True
     )
     cart = models.ForeignKey(Cart)
-    status = models.CharField(max_length=20, default='new', choices=ORDER_STATUS_CHOICES)
+    status = models.CharField(max_length=20, default='waiting', choices=ORDER_STATUS_CHOICES)
     shipping_total = models.DecimalField(max_digits=10, decimal_places=2, default=50.00)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     active = models.BooleanField(default=True)
@@ -63,10 +66,19 @@ class Order(models.Model):
     objects = OrderManager()
 
     def update_total(self):
-        print('>>> self.cart.total >>>', type(self.cart.total))
-        print('>>> self.shipping_total >>>', type(self.shipping_total))
         self.total = Decimal(self.cart.total) + Decimal(self.shipping_total)
         self.save()
+
+    def check_done(self):
+        if self.billing_profile and self.shipping_address and self.billing_address and self.total > 0:
+            return True
+
+    def mark_as_new(self):
+        if self.check_done():
+            self.status = 'new'
+            self.save()
+            return True
+        # return self.status
 
     def __str__(self):
         return self.order_id
